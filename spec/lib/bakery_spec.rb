@@ -98,5 +98,14 @@ RSpec.describe "Bakery" do
         expect { processor.process! }.to raise_error(an_instance_of(Exceptions::Bakery).and having_attributes(message: "You inputted an invalid number of product, we only accept minimal number of items to minimize shipping cost, please adjust accordingly. Number of items should be divisible by 3 or 5"))
       end
     end
+
+    describe 'Invalid quantity' do
+      let(:code) { "VS5" }
+      let(:quantity) { "notanumber" }
+
+      it "should raise an invalid number of items error" do
+        expect { processor.process! }.to raise_error(an_instance_of(Exceptions::Bakery).and having_attributes(message: "Invalid quantity."))
+      end
+    end
   end
 end

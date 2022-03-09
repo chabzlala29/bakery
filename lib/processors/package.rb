@@ -19,6 +19,8 @@ module Processors
     end
 
     def process!
+      check_quantity!
+
       packs.sort_by{ |pack| -pack.quantity }.each do |pack|
         pack_quantity = pack.quantity
         remainder = remaining_qty % pack_quantity
@@ -39,18 +41,26 @@ module Processors
       check_item_validity!(sorted_packages)
 
       {
-        total_cost: breakdown.map(&:total_cost).sum.round(Processors::Package::DEFAULT_INT_ROUND),
+        total_cost: current_total_cost,
         sorted_packages: sorted_packages
       }
     end
 
     private
 
+    def current_total_cost
+      @current_total_cost ||= breakdown.map(&:total_cost).sum.round(Processors::Package::DEFAULT_INT_ROUND)
+    end
+
     def check_item_validity!(sorted_packages)
       raise Exceptions::Bakery.new(
         :invalid_number_of_items,
         " Number of items should be divisible by #{ packs.map(&:quantity).to_sentence(last_word_connector: ", or ", two_words_connector: " or ") }"
       ) if sorted_packages.empty?
+    end
+
+    def check_quantity!
+      raise Exceptions::Bakery.new(:invalid_quantity) unless quantity.to_s == quantity.to_i.to_s
     end
 
     def divisible_by_any_pack?(remainder)

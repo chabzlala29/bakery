@@ -14,7 +14,7 @@ class Bakery
   end
 
   def process_packaging(quantity, code)
-    raise Exceptions::Bakery.new(:invalid_product_code) if code_valid?(code)
+    raise Exceptions::Bakery.new(:invalid_product_code) unless code_valid?(code)
 
     processor = Processors::Package.new(
       bakery: self,
@@ -22,7 +22,6 @@ class Bakery
       code: code
     )
     processor.process!
-    processed.results
   end
 
   def item_by_code(code)
